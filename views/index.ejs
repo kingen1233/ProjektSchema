@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('common/head', { title: 'StudyMatch' }) %>
+  </head>
+<body>
+  <%- include('common/nav', { isLoggedIn }) %>
+  <h2 class="text-center">Welcome to StudyMatch!</h2>
+  <% if (userType === 'STUDENT') { %>
+  <p class="text-center">StudyMatch is a website for you to find a study partner or exam partner, through the "Search profile" feature. </p>
+  <% } else if (userType === 'ADMIN') { %>
+  <p class="text-center">Here you can administer users through the ”Administration” feature. </p>
+  <% } else if (userType === 'STAFF') { %>
+  <p class="text-center">Here you can manage exam schedules through the ”Schedule” feature. </p>
+  <% } %>
+</body>
+</html>

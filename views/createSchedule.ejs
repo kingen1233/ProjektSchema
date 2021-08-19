@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('common/head', { title: 'StudyMatch' }) %>
+</head>
+
+<body>
+  <%- include('common/nav') %>
+<style>
+  .rcorners2 {
+    border-radius: 25px;
+    border: 2px solid #959595;
+    padding: 20px; 
+    max-width: 550px;
+  }
+</style>
+
+
+  <% if (errorMessage) {%>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <strong>Error!</strong> <%= errorMessage %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  <% } %>
+    <!-- Div containing all the input fields required to generate a schedule. -->
+  <div style="margin:25px">
+    <h4>Create your schedule here</h4>
+    <p><br> Please note! <br>Only excel files of the type ".xlsx" will be accepted</p>
+    <form class="rcorners2" action="/createSchedule" enctype="multipart/form-data" method="POST">
+
+      <p>Enter which date you want the schedule to begin on. Since the schedule will take three days, you may only choose Monday, Tuesday or Wednesday!</p> 
+
+      <!-- Date picker input for choosing starting date for the schedule. -->
+      <div class="date-picker">        
+        <label for="date">Pick starting date</label>
+        <input type="date" name="date" id="datePicker" required>
+      </div>
+
+      <!-- Inputs for which rooms are avaliable to be scheduled. -->
+      <div class="room-input">        
+        <label for="roomDay1">Enter rooms avaliable during day one</label><br>
+        <input type="text" name="room1day1" id="room1day1" placeholder="Room one">
+        <input type="text" name="room2day1" id="room2day1" placeholder="Room two"><br><br>
+
+        <label for="roomDay2">Enter rooms avaliable during day two</label><br>
+        <input type="text" name="room1day2" id="room1day2" placeholder="Room one">
+        <input type="text" name="room2day2" id="room2day2" placeholder="Room two"><br><br>
+        
+        <label for="roomDay3">Enter room avaliable during day three.</label><br>
+        <input type="text" name="roomDay3" id="roomDay3" placeholder="Room"><br><br>
+      </div>
+
+      <!-- The language shown in the file picker buttons will be in the users system-language.  -->
+      <div class="file-input">
+        <label for="myFile">Select your excel file containing the scheduling information here.</label>
+        <input type="file" accept=".xlsx" id="myFile" name="file">
+        <input type="submit">
+      </div>
+    </form>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+module.exports = {
+  register: require('./register'),
+  login: require('./login'),
+  droppage: require('./droppage'),
+  logout: require('./logout'),
+  schedule: require('./schedule'),
+  createSchedule: require('./createSchedule'),
+  chat: require('./chat'),
+  myprofile: require('./myprofile'),
+  profile: require('./profile'),
+  profileSearch: require('./profileSearch'),
+  mailList: require('./mailList'),
+  admin: require('./admin'),
+  accountManagement: require('./accountManagement'),
+}

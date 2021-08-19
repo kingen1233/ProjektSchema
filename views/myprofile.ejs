@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('common/head', { title: 'My Profile' }) %>
+  <link rel="stylesheet" href="/myprofile.css">
+</head>
+<body>
+  <%- include('common/nav') %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 mx-auto">
+        <!--Shows an alert when the profile is saved-->
+        <% if (errorMessage === 'Profile Saved.') { %>
+          <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+            <strong>Success!</strong> <%= errorMessage %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% } %>
+
+        <% if (showAlert) { %>
+          <!--Shows an alert when language and university and any type of course hasn't been selected-->
+          <div class="alert alert-warning alert-dismissible fade show my-3" role="alert">
+            <strong>Warning!</strong> To be able to search for profiles, you need to fill out the following: Languages, University, Courses.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% } %>
+        
+        <div class="card my-5">
+          <div class="card-body">
+            <h5 class="card-title text-center my-3">Profile settings</h5>
+            <form action="/myprofile" method="POST" id="profileForm">
+              <div class="row">
+                <div class="col-md-3 border-right d-flex flex-column align-items-center text-center p-3 py-5" id="leftCol">
+                  <img class="img-fluid rounded-circle mt-3" src="/UserStandard.jpg">
+                  <!--Shows the user's alias-->
+                  <span class="font-weight-bold"><%= profile[0].alias %></span>
+                </div>
+
+                <div class="col-md-5 border-right" id="centerCol">
+                  <div class="form-group">
+                    <label class="labels">Alias</label>
+                    <!--Input field where the user can type out an alias-->
+                    <input type="text" class="form-control" value="<%= profile[0].alias %>"  name="alias" required minlength="2" maxlength="15">
+                    <small id="aliasHelp" class="form-text text-muted">
+                      Between 2-15 characters
+                    </small>
+                  </div>
+
+                  <div class="form-group">
+                    <!--Dropdown where user can select nearest city-->
+                    <label class="labels">Nearest city</label>
+                    <select class="selectpicker form-control" data-live-search="true" name="city" title="Select Nearest City" data-size="5" data-dropup-Auto="false">
+                      <% for (i = 0; i < allCities.length; i++) { %>
+                        <option value="<%= allCities[i].cityId %>"
+                        <% if(allCities[i].cityId === profile[0].cityId){ %>
+                          selected
+                        <% } %>
+                        ><%= allCities[i].city %></option>
+                      <% } %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="labels">Spoken languages</label>
+                    <!--Dropdown where the user can select languages-->
+                    <select class="selectpicker form-control" multiple name="language" title="Select Languages">
+                      <% for (i = 0; i < allLanguages.length; i++) { %>
+                        <option value="<%= allLanguages[i].languageId %>"
+                        <% if(allLanguages[i].selected === 1){ %>
+                          selected
+                        <% } %>
+                        ><%= allLanguages[i].language %></option>
+                      <% } %>
+                    </select>
+                    <small id="languageHelp" class="form-text text-muted">
+                      Can select multiple
+                    </small>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="labels">University</label>
+                    <!--Dropdown where user can select their university-->
+                    <select class="selectpicker form-control university-picker" name="university" title="Select University">
+                      <% for (i = 0; i < allUniversities.length; i++) { %>
+                        <option value="<%= allUniversities[i].universityId %>"
+                        <% if(allUniversities[i].universityId === profile[0].universityId){ %>
+                          selected
+                        <% } %>
+                        ><%= allUniversities[i].university %></option>
+                      <% } %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="labels">Ongoing courses</label>
+                    <!--Dropdown where the user can select the courses they want to find a study partner for-->
+                    <select class="selectpicker form-control course-picker" data-live-search="true" title="Select Courses" multiple name="course" data-size="5" data-dropup-Auto="false">
+                      <% for (i = 0; i < allCourses.length; i++) { %>
+                        <option value="<%= allCourses[i].courseId %>"
+                        <% if(allCourses[i].selected === 1){ %>
+                          selected
+                        <% } %>
+                        ><%= allCourses[i].course %></option>
+                      <% } %>
+                    </select>
+                    <small id="courseHelp" class="form-text text-muted">
+                      Can select multiple
+                    </small>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="labels">Thesis course</label>
+                    <!--Dropdown where user can select their thesis course-->
+                    <select class="selectpicker form-control thesisCourse-picker" title="Select Course" name="thesisCourse" data-size="5" data-dropup-Auto="false">
+                      <% for (i = 0; i < allThesisCourses.length; i++) { %>
+                        <option value="<%= allThesisCourses[i].thesisCourseId %>"
+                        <% if(allThesisCourses[i].selected === 1){ %>
+                          selected
+                        <% } %>
+                        ><%= allThesisCourses[i].thesisCourse %></option>
+                      <% } %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4 my-auto">
+                  <label class="labels">About me</label>
+                  <!--A textarea where the user can write about themselves-->
+                  <textarea class="form-control" rows="5" name="bio" maxlength="1000"><%= profile[0].bio %></textarea>
+                  <small id="languageHelp" class="form-text text-muted">
+                    Up to 1000 characters
+                  </small>
+                </div>             
+              </div>
+
+              <div class="mt-3 text-center">
+                <!--Button that submits the form and saves the changes. Disabled if the user hasn't done any changes-->
+                <button class="btn btn-primary profile-button" type="submit" disabled>Save Profile</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const courses = JSON.parse(`<%- coursesStr  %>`)
+    const thesisCourses = JSON.parse(`<%- thesisCoursesStr  %>`)
+    let selectedUniversityId = null
+
+    const renderSelectableCourses = () => {
+      const courseSelect = document.querySelector('select[name="course"]')
+      courseSelect.innerHTML = '' // Resets the element
+
+      //Loads the selectable courses for the chosen university in the course dropdown
+      courses.filter(course => course.universityId === selectedUniversityId)
+        .forEach(course => {
+          const option = document.createElement('option')
+          option.value = course.courseId
+          option.innerHTML = course.course
+          if (course.selected) {
+            option.setAttribute('selected', 'true')
+          }
+
+          courseSelect.appendChild(option)
+        })
+
+      $('.course-picker').selectpicker('refresh');
+    }
+
+    const renderSelectableThesisCourses = () => {
+      const thesisCourseSelect = document.querySelector('select[name="thesisCourse"]')
+      thesisCourseSelect.innerHTML = '' // Resets the element
+
+      //Loads the selectable thesis courses for the chosen university in the thesis course dropdown
+      thesisCourses.filter(thesisCourse => thesisCourse.universityId === selectedUniversityId || thesisCourse.universityId === null)
+        .forEach(thesisCourse => {
+          const option = document.createElement('option')
+          option.value = thesisCourse.thesisCourseId
+          option.innerHTML = thesisCourse.thesisCourse
+          if (thesisCourse.selected) {
+            option.setAttribute('selected', 'true')
+          }
+
+          thesisCourseSelect.appendChild(option)
+        })
+
+      $('.thesisCourse-picker').selectpicker('refresh');
+    }
+
+    
+    $(document).ready(function() {
+      selectedUniversityId = Number(
+        document.querySelector('select[name="university"]').value
+      )
+      $('.course-picker').prop('disabled', !selectedUniversityId);
+      $('.thesisCourse-picker').prop('disabled', !selectedUniversityId);
+      renderSelectableCourses()
+      renderSelectableThesisCourses()
+
+      //Renders Courses and Thesis Courses when new university has been selected.
+      $('.university-picker').on('change', function (e) {
+        selectedUniversityId = Number(e.target.value)
+        renderSelectableCourses()
+        renderSelectableThesisCourses()
+
+        $('.course-picker').prop('disabled', false);
+        $('.thesisCourse-picker').prop('disabled', false);
+
+        $('.course-picker').selectpicker('refresh');
+        $('.thesisCourse-picker').selectpicker('refresh');
+      });
+
+      //Makes sure that the form submit button is disabled if no changes has been done.
+      $('#profileForm')
+        .each(function(){
+          $(this).data('serialized', $(this).serialize())
+        })
+        .on('change input', function(){
+          $(this)             
+            .find('input:submit, button:submit')
+              .prop('disabled', $(this).serialize() == $(this).data('serialized'))
+          ;
+        })
+        .find('input:submit, button:submit')
+          .prop('disabled', true)
+      ;
+    });
+  </script>
+</body>
+</html>

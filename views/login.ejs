@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('common/head', { title: 'Login' }) %>
+
+  <style>
+    body { 
+  background: url(Planet.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+  </style>
+</head>
+<body ">
+  <%- include('common/nav') %>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div class="card card-signin my-5">
+          <div class="card-body">
+            <h5 class="card-title text-center">Login</h5>
+
+            <% if (errorMessage) {%>
+              <!-- If the backend generates and errorMessage, display it. -->
+            <div class="alert alert-danger alert-dismissible fade show">
+              <strong>Error!</strong> <%= errorMessage %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <% } %>
+
+            <!-- Form for logging in, all credentials are sent and validated in the back-end. -->
+            <form action="/login" class="form-signin" method="POST" novalidate>
+
+              <div class="form-label-group">
+                <label for="inputEmail">Email address</label>
+                <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+              </div>
+
+              <div class="form-label-group">
+                <label for="inputPassword" style="margin-top: 15px">Password</label>
+                <input name="password" type="password" id="inputPassword" class="form-control" style="margin-bottom: 15px;" placeholder="Password" required>
+              </div>
+              
+              <button class="btn btn-lg btn-primary btn-block text-uppercase" style="margin-top: 15px" type="submit">Login</button>
+            </form>
+            
+            <!-- Link to the register page, incase the user does not have an account yet. -->
+            <div class="mt-3 text-center">
+              <a href="/register">Create new account</a>
+            </div>          
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

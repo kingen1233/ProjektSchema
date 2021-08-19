@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('common/head', { title: 'StudyMatch' }) %>
+    <link rel="stylesheet" href="schedule.css">
+  </head>
+<body>
+  <%- include('common/nav') %>
+  <!--If an error has been sent from back end generate an alert-box with said error message. -->
+  <% if(error) {%>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <strong>Error!</strong> <%= error %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  <% } %>
+
+  <!--Dont display while in edit mode. -->
+   <% if(action != "edit"){ %>
+  <!--Button to create schedule. -->
+    <% if(userType === 'STAFF'){%>
+    <form action="/createSchedule">
+      <button name="createSchedule" class="btn btn-primary" style="margin-left: 10px; margin-top: 10px;">Create New Schedule</button>
+    </form>
+
+    <!--Button for editing. -->
+    <form action="/schedule" method="POST">
+      <input type="hidden" name="week" id="hiddenWeek" value="<%=week%>">
+      <input type="hidden" name="year" id="hiddenYear" value="<%=year%>">
+      <button type="submit" name="edit" value="editSchedule" class="btn btn-primary" style="margin: 10px;">Edit Schedule</button>
+    </form>
+
+    <a
+      class="btn btn-primary"
+      style="margin-left: 10px; margin-bottom: 5px;"
+      href="/mail-list?presentationWeek=<%=week%>&presentationYear=<%=year%>"
+      target="_blank"
+    >Download mail list for week</a>
+
+    <% } %>
+  <!--If in edit mode. -->
+  <% }else{ %>
+    <form action="/schedule" method="POST">
+      <input type="hidden" name="week" id="hiddenWeek" value="<%=week%>">
+      <input type="hidden" name="year" id="hiddenYear" value="<%=year%>">
+      <button type="submit" name="returnFromEdit" value="returnFromEdit" class="btn btn-success" style="margin: 10px;">Return from edit mode</button>
+      <button type="submit" name="deleteSchedule" value="deleteSchedule" class="btn btn-danger" style="margin: 10px;" onclick="return confirmationWindow('WARNING!\nThis will remove everything scheduled in week <%=week%>')">Delete Scheduled Week</button>
+    </form>
+    <%if(move){ %>
+      <!--If were in the move mode, show some explanatory text for the user. -->
+      <h1 style="margin: 10px">Please Note!</h1>
+      <p style="margin: 10px; font-size: larger;">Your selected presentation is marked with cyan color. 
+        <br> Slots marked with green color are slots you can swap with without generating collisions. 
+        <br> You can still swap with white slots, however the schedule will contain collisions.
+      </p>
+    <%} } %>
+    <!--Buttons to switch between weeks in the schedule. -->
+    <form action="/schedule" method="POST">
+      <div class="weeks-dropdown">
+        <label for="week" style="margin-left: 15px;">View schedule for: </label>
+          <select name="selectedWeek" id="week" onchange="this.form.submit()">
+          <% weeks.forEach(row => { %>
+            <option <%= row.week == week && row.year == year ? 'selected' : '' %> value="<%= row.week %>,<%= row.year %>">week <%= row.week %>, <%= row.year %></option>
+          <% }) %>
+        </select>
+        <label for="who" style="margin-left: 15px;">Show for: </label>
+        <select name="who" id="who" onchange="this.form.submit()">
+          <option <%= who === 'all' ? 'selected' : '' %> value="all">Everyone</option>
+          <option <%= who === 'me' ? 'selected' : '' %> value="me">Only Me</option>
+        </select>
+      </div>
+    </form>
+
+  <script>
+    function confirmationWindow(msg) {
+      //Displays and information window with a confirm and dismiss button.
+      return confirm(msg)
+    }
+
+    //Global variable for user type.
+    const rUserType = "<%= userType %>"
+
+    function addOpponent() {
+      //Dynamically add title and presentationId as a value to the modal for adding opponents.
+      const opponentTitle = document.getElementById("ModalTitle").textContent;
+      const opponentPresentationId = document.getElementById("presentationId").value;
+
+      //Add more information to the modal.
+      document.getElementById("AddOpponentModalTitle").innerHTML = opponentTitle;
+      document.getElementById("AddOpponentModalBody").innerHTML = '<b>You may only add one new opposer at a time!</b><br><br>' +
+        '<form action="/schedule" method="POST">' +
+        'Opposer name:  ' +
+        '<input type="text" name="studentName" id="studentName" placeholder="First- and lastname" required><br>' +
+        'Opposer email:   ' +
+        '<input type="email" name="studentEmail" id="studentEmail" placeholder="student@mail.com" required>' +
+        '<input type="hidden" name="week" id="hiddenWeek" value="<%=week%>">' +
+        '<input type="hidden" name="year" id="hiddenYear" value="<%=year%>">' +
+        '<input type="hidden" name="addOpponentPresentationId" id="addOpponentPresentationId" value="' + opponentPresentationId + '">' +
+        '<br><button type="submit" name="addOpponent" value="addOpponent" class="btn btn-success" style="float: right;">Save</button>' +
+        '</form>';
+    }
+
+    function fillModal(action, presentationId, title, author, examinator, supervisor, opposer, time, room) {
+      //Fills the modal with all information in it. 
+      const fill = function () {
+        opposer = opposer != "undefined" ? opposer : 'None';
+        document.getElementById("ModalTitle").innerHTML = title;
+        if (rUserType === 'STAFF') {
+          //For the staff user, also display a button for downloading a mail list.
+          document.getElementById("ModalBody").innerHTML = "<b>Author(s):</b> " + author
+            + "<br><b>Examinator:</b> " + examinator
+            + "<br><b>Supervisor:</b> " + supervisor
+            + "<br><b>Opposer(s):</b> " + opposer
+            + "<br><b>Time:</b> " + time
+            + "<br><b>Room:</b> " + room
+            + `
+              <a
+                class="btn btn-primary"
+                style="margin-left: 10px; float: right;"
+                href="/mail-list?presentationId=${presentationId}"
+                target="_blank"
+              >Download mail list</a>
+              `;
+        }
+        else {
+          document.getElementById("ModalBody").innerHTML = "<b>Author(s):</b> " + author
+            + "<br><b>Examinator:</b> " + examinator
+            + "<br><b>Supervisor:</b> " + supervisor
+            + "<br><b>Opposer(s):</b> " + opposer
+            + "<br><b>Time:</b> " + time
+            + "<br><b>Room:</b> " + room;
+        }
+
+        "<% if(action === 'edit'){%>";
+        //If we're in edit mode, make buttons visible again.
+        document.getElementById('deletePresentation').style.display = ''
+        document.getElementById('addOpponent').style.display = ''
+        "<% }%>"
+      }
+
+      switch (action) {
+        case 'fill':
+
+          fill();
+          break;
+
+        case 'edit':
+
+          fill();
+          //Do normal fill, then override some of the text.
+          document.getElementById("ModalTitle").innerHTML = title;
+          document.getElementById("ModalBody").innerHTML = "<b>Author(s): </b>" + author
+            + " <br><b>Examinator: </b>" + examinator
+            + "<br><b>Supervisor: </b>" + supervisor
+            + "<br><b>Opposer(s): </b>" + opposer
+            + "<br><b>Time: </b>" + time
+            + "<br><b>Room: </b>" + room;
+
+          //Save the id of the presentation inside the modal.
+          document.getElementById("presentationId").value = presentationId;
+          // If phony element, hide functionality buttons.
+          if (title === 'Unscheduled Presentation') {
+            document.getElementById('addOpponent').style.display = 'none'
+            document.getElementById('deletePresentation').style.display = 'none'
+          }
+          break;
+      }
+    }
+  </script>
+
+    <table>
+      <!-- Loop through table, element by element. -->
+      <% table.forEach(row => { %>
+      <tr>
+        <% row.forEach(cellItems => { %>
+        <td>
+          <div>
+            <% cellItems.forEach((item, i) => { %>
+            <!-- If not in edit mode give Phony elements a different class. -->
+            <!-- Give each cells onclick the information corresponding to the element. Information goes into modal. -->
+            <!-- If we're in edit mode, and there is a presentation in the cell, the modal should open when we click it. -->
+            <!-- If its a phony element, or if there is no presentation scheduled, do nothing. -->                
+            <!-- Outside of edit mode, if there is a presentation scheduled, open the modal. -->
+            <!-- Change the background color of the cells, depending on if its selected, if it would generate a collision if you swapped it with the currently selected element. -->
+            <div  <% if(action !== 'edit'){ %>               
+              <%= item.title === 'Unscheduled Presentation' ?  'class=cell2' : 'class=cell' %>
+              <% }else{%> 
+                class="cell"
+              <%}%>
+              onclick="fillModal('<%= action == 'edit' ? 'edit' : 'fill' %>', <%="'" + item.presentationId + "','" + item.title + "','" + item.author + "','" + item.examinator + "','" + item.supervisor + "','" + item.opponent + "','" + item.time + "','" + item.room + "'" %>)"
+              <%if(action === 'edit' && item.title){%>
+                data-toggle="modal" data-target="#itemModal"
+              <%}else if(item.title == "Unscheduled Presentation" || !item.title){ %>
+              <%}else if(item.title){%>
+                data-toggle="modal" data-target="#itemModal"
+              <% } %>
+              style="<%= i != cellItems.length - 1 ? 'border-right: 1px solid black;' : ''%> <%= item.collide ? 'background-color:#85e085;' : ''%><%= item.presentationId == presentationId ? 'background-color:#81D9FF;' : ''%>" >
+              
+              <%  if(item.title && item.title != "Unscheduled Presentation") {%>
+                <!-- If its a presentation, and its not a phony element, write out the information in labels. -->
+              <label style=" flex: 2; font-weight: bold;"><%= item.title %></label> 
+              <label style="flex: 1">Author<%= item.author.includes(',') ? 's' : '' %>: <%= item.author %></label>
+                <% if(action === 'edit'){ %>
+                  <label style="flex: 1">Opposer <% if(item.opponent) { %> <%=item.opponent.includes(',') ? 's' : '' %>: <%= item.opponent %> <% } %></label>
+                  <label style="flex: 1">Examinator: <%= item.examinator %></label>
+                  <label style="flex: 1">Supervisor: <%= item.supervisor %></label>
+                <%}%>
+              <%} else if(item.week && item.year){ %>
+                <!-- If its an element containing week and year -->
+              <label style="flex: 1"><%= item.week%><br><%= item.year%></label>
+
+              <%} else {%>
+                <!-- If its an element containing a timestamp-->
+              <label style="flex: 1"><%= item.data %></label>
+              <% } %>
+            </div>
+            <% }) %>
+          </div>
+        </td>
+        <% }) %>
+      </tr>
+      <% }) %>
+    </table>
+
+<!-- Setup skeleton for the presentation modal, the body itself is empty, and is filled when a click is done inside one of the schedule divs.  -->
+<div class="modal" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ModalTitle" style="font-weight: bold;"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="ModalBody">
+
+      </div>
+      <% if(action === "edit"){ %>
+        <!-- I were in edit mode, show additional functionality buttons inside the modal.
+             This also contains various hidden inputs, these are to be sent to the backend when someone clicks the funtctionality buttons. -->
+        <div class="modal-footer" id="ModalFooter">
+
+        <button name="addOpponent" id="addOpponent" class="btn btn-primary" onclick="addOpponent()" data-toggle="modal"
+          data-target="#AddOpponentModal" data-dismiss="modal">Add Opposer</button>
+
+        <form action="/schedule" method="POST">
+          <input type="hidden" name="week" id="hiddenWeek" value="<%=week%>">
+          <input type="hidden" name="year" id="hiddenYear" value="<%=year%>">
+          <input type="hidden" name="presentationId" id="presentationId" value="">
+          <% if(!move){ %>
+            <!-- If were not in the moving state, show the move button, else, show the swap button. -->
+          <button type="submit" name="movePresentation" id="movePresentation" value="movePresentation"class="btn btn-success">Move Presentation</button>
+          <%}else{ %>
+          <input type="hidden" name="presentationIdSelected" id="presentationIdSelected" value="<%=presentationId%>">
+          <button type="submit" name="swapPresentation" id="swapPresentation" value="swapPresentation"class="btn btn-success">Swap Presentation</button>
+          <% } %>
+          <button type="submit" name="deletePresentation" id="deletePresentation" value="deletePresentation" class="btn btn-danger"
+            onclick="return confirmationWindow('WARNING!\nThis will remove the currently selected presentation')">Delete
+            Presentation</button>
+        </form>
+      </div>
+      <%} %>
+    </div>
+  </div>
+</div>
+
+<!-- Skeleton for opponent used to add opponents. 
+  If we click the "add opponent" button this will be filled with relevant information and be opened. -->
+<div class="modal" id="AddOpponentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="AddOpponentModalTitle" style="font-weight: bold;"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="AddOpponentModalBody">
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+</html>

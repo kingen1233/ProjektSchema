@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('common/head', { title: 'ProfileSearch' }) %> 
+  <link rel="stylesheet" href="/profileSearch.css">
+</head>
+<body>
+  <%- include('common/nav') %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 mx-auto">
+        <div class="card my-5">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 col-lg-3 border-right d-flex flex-column align-items-left" id="leftCol">
+
+                <form action="/profileSearch" method="GET" id="study-form">
+                  <div class="form-group">
+                    <h4>Filter profiles</h4>
+
+                    <div class="form-group">
+                      <label class="labels">Looking for:</label>
+                     <!--Radio buttons for course/thesis course-->
+                      <div class="form-group ml-5">
+                        <input class="form-check-input study-radio" type="radio" id="studyCheck" name="partnerChoice" value="study"
+                        <% if (studyPartner === 1) { %>
+                          checked
+                        <% } %>>
+                        <label class="form-check-label" for="studyCheck">Study partner</label>
+                      </div>
+                      
+                      <div class="form-group ml-5">
+                        <input class="form-check-input thesis-radio" type="radio" id="examCheck" name="partnerChoice" value="thesis"
+                        <% if (thesisPartner === 1) { %>
+                          checked
+                        <% } %>>
+                        <label class="form-check-label" for="examCheck">Thesis partner</label>
+                      </div>  
+                    </div>
+
+                    <label class="labels">Languages</label>
+                    <!--dropdown for languages-->
+                    <select class="selectpicker form-control" title="Select Languages" multiple name="languages" required>
+                      <% for (i = 0; i < languages.length; i++) { %>
+                        <option value="<%= languages[i].languageId %>"
+                          <% if(languages[i].selected === 1){ %>
+                            selected
+                          <% } %>
+                          ><%= languages[i].language %></option>
+                      <% } %>
+                    </select>
+                    <small id="courseHelp" class="form-text text-muted">
+                      Can select multiple
+                    </small>
+                  </div>
+                  
+                  <div class="form-group course-group">
+                    <label class="labels">Courses</label>
+                    <!--dropdown for courses-->
+                    <select class="selectpicker form-control" title="Select Courses" multiple name="courses">
+                      <% for (i = 0; i < courses.length; i++) { %>
+                        <option value="<%= courses[i].courseId %>"
+                          <% if(courses[i].selected === 1){ %>
+                            selected
+                          <% } %>
+                          ><%= courses[i].course %></option>
+                      <% } %>
+                    </select>
+                    <small id="courseHelp" class="form-text text-muted">
+                      Can select multiple
+                    </small>
+                  </div>
+
+                  <div class="form-group thesisCourse-group">
+                    <label class="labels">Thesis Course</label>
+                    <!--shows selected thesis course-->
+                    <input type="text" class="form-control" disabled 
+                    <% if (thesisCourse[0]) { %>
+                    placeholder="<%= thesisCourse[0].thesisCourse %>"
+                    <% } %>>
+                  </div>
+
+                    <!--button to submit the form and make a new search for matches-->
+                    <button class="btn btn-primary profile-button" type="submit">Search</button>
+                </form>
+              </div>
+              <div class="col-md-8 col-lg-9">
+                <div class="list-group" id="profileList">
+                  <!--List of profile matches-->
+                  <a class="list-group-item list-group-item-action active text-white">
+                    Profile matches
+                  </a>
+                  <% for (i = 0; i < matchAmount; i++) { %>
+                    <a href="profile/<%= matches[i].userId %>" class="list-group-item list-group-item-action"><%= matches[i].alias %></a>
+                  <% } %>
+                </div>
+
+                <% if (matches.length > 5) { %>
+                  <div class="mt-3 text-center">
+                    <!--refresh button-->
+                    <button class="btn btn-primary profile-button" onClick="window.location.reload(true);">Refresh matches</button>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const studyPartner = JSON.parse(`<%- studyPartner  %>`)
+    const disableStudy = JSON.parse(`<%- disableStudy  %>`)
+    const disableThesis = JSON.parse(`<%- disableThesis  %>`)
+    //Checks if any of the radio-buttons should be disabled.
+    const hideStudy = studyPartner === 1
+    document.getElementById("studyCheck").disabled = disableStudy;
+    document.getElementById("examCheck").disabled = disableThesis;
+
+    $(document).ready(function() {
+      $('.course-group').prop('hidden', !hideStudy);
+      $('.thesisCourse-group').prop('hidden', hideStudy);
+
+      $('.study-radio').on('change', function (e) {
+
+        $('.course-group').prop('hidden', false);
+        $('.thesisCourse-group').prop('hidden', true);
+      });
+
+      $('.thesis-radio').on('change', function (e) {
+
+        $('.course-group').prop('hidden', true);
+        $('.thesisCourse-group').prop('hidden', false);
+      });
+    });
+  </script>
+</body>
+</html>

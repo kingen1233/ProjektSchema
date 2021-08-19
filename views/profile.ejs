@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('common/head', { title: 'Profile' }) %> 
+  <link rel="stylesheet" href="/myprofile.css">
+</head>
+<body>
+  <%- include('common/nav') %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 mx-auto">
+        <div class="card my-5">
+          <div class="card-body">
+            <h5 class="card-title text-center my-3">Profile</h5>
+
+            <div class="row">
+              <div class="col-md-3 border-right d-flex flex-column align-items-center text-center p-3 py-5" id="leftCol">
+                <img class="img-fluid rounded-circle mt-3" src="/UserStandard.jpg">
+                <span class="font-weight-bold"><%= profile[0].alias %></span>
+              </div>
+
+              <div class="col-md-5 border-right" id="centerCol">
+                <div class="form-group">
+                  <label class="labels">Nearest city</label>
+                  <!--Field that shows the profile-owner's selected city-->
+                  <input type="text" class="form-control" disabled
+                  <% if (Array.isArray(city) && city.length > 0 && city[0].city !== null) { %>
+                    placeholder="<%= city[0].city %>">
+                  <% }else { %>
+                    placeholder="No location selected">
+                  <% } %>
+                </div>
+
+                <div class="form-group">
+                  <!--Field that shows the profile-owner's selected languages-->
+                  <label class="labels">Spoken languages</label>
+                  <input type="text" class="form-control" disabled
+                  <% if (languages[0].language !== null) { %>
+                    <% const lang = []  %>
+                    <% for (i = 0; i < languages.length; i++) { %>
+                      <% lang.push(languages[i].language) %>
+                    <% } %>
+                    placeholder="<%= lang.join(', ') %>">
+                  <% }else { %>
+                    placeholder="No languages selected">
+                  <% } %>
+                </div>
+
+                <div class="form-group">
+                  <!--Field that shows the profile-owner's selected university-->
+                  <label class="labels">University</label>
+                  <input type="text" class="form-control" disabled
+                  <% if (Array.isArray(university) && university.length > 0 && university[0].university !== null) { %>
+                    placeholder="<%= university[0].university %>">
+                  <% }else { %>
+                    placeholder="No university selected">
+                  <% } %>
+                </div>
+
+                <div class="form-group">
+                  <label class="labels">Ongoing courses</label>
+                  <!--Field that shows the profile-owner's selecated courses as a list-->
+                  <ul class="list-group">
+                    <% if (!Array.isArray(courses) || courses.length === 0) { %>
+                      <li class="list-group-item disabled">
+                        No courses selected
+                      </li>
+                    <% } else {%>
+                      <% for (i = 0; i < courses.length; i++) { %>
+                        <li class="list-group-item disabled">
+                          <%= courses[i].course %>
+                        </li>
+                      <% } %>
+                    <% } %>
+                  </ul>
+                </div>
+
+                <div class="form-group">
+                  <!--Field that shows the profile-owner's selected thesis course-->
+                  <label class="labels">Thesis Course</label>
+                  <input type="text" class="form-control" disabled
+                  <% if (thesisCourse.length > 0) { %> 
+                    placeholder="<%= thesisCourse[0].thesisCourse %>">
+                  <% }else { %>
+                    placeholder="No thesis course selected">
+                  <% } %>
+                </div>
+
+                
+              </div>
+
+              <div class="col-md-4 my-auto">
+                <!--Field that shows the profile-owner's bio-->
+                <label class="labels">About</label>
+                <textarea class="form-control" rows="5" placeholder="<%= profile[0].bio %>" disabled></textarea>
+              </div>
+            </div>
+
+            <div class="mt-3 text-center">
+              <!--Button to open chat request modal-->
+              <button class="btn btn-primary profile-button" type="button" data-toggle="modal" data-target="#exampleModal">Send chat request</button>
+            </div>
+            
+            <!--Modal that lets the user send the first message to a profile-owner-->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form action="/chat-messages" method="POST">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Chat request</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <% if(!messageSent) { %>
+                      <div class="modal-body">
+                        <div class="form-check">
+                          <!--Hidden field to send the userId of the profile-owner with the form-->
+                          <input type="hidden" class="form-control" value="<%= profile[0].userId %>" name="toUserId">
+
+                          <label class="labels">Send text message</label>
+                          <textarea class="form-control" rows="5" name="message" required></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary profile-button" type="submit">Send message</button>
+                      </div>
+                    <% } else { %>
+                      <div class="modal-body">
+                        <div class="form-check">
+                          <input type="text" class="form-control" name="toUserId" disabled placeholder="Chat request already sent">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    <% } %>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

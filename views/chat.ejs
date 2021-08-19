@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('common/head', { title: 'Chat' }) %>
+  <script src="chat.js"></script>
+  <style>
+    body, html {
+      height:100%;
+    }
+    body{
+      overflow: hidden;
+    }
+
+    .container-fluid, .parent{
+      height: 100%;
+    }
+
+    #left, #right{
+      float: left;
+      text-align: center;
+    }
+
+    #left {
+      height:100%;
+      overflow-y: auto;
+      padding-right: 0;
+    }
+
+    #right {
+      height:100%;
+    }
+
+    #right div:first-child {
+      overflow-y: auto;
+    }
+
+    #right div:first-child ul {
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    ul.contain li{
+      display:inline-block;
+      clear: both;
+      padding: 10px;
+      border-radius: 30px;
+      margin-bottom: 2px;
+      word-wrap: break-word;
+      max-width: 90%;
+    }
+
+    ul.contain {
+      padding-left: 0;
+    }
+
+    .him{
+      background: #eee;
+      float: left;
+    }
+
+    .me{
+      float: right;
+      background: #0084ff;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <%- include('common/nav') %>
+<div class="container-fluid">
+
+  <div class="row parent">
+    <ul class="list-group list-group-flush col-4 border-right border-light bg-light" id="left"></ul>
+    <div class="col-8 d-flex flex-column justify-content-between" id="right">
+      <div style="flex:1; overflow: auto">
+        <ul class="contain"></ul>
+      </div>
+      <div style="min-height: 100px; margin-top: 10px">
+        <input type="text" class="form-control" id="messageInput">
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

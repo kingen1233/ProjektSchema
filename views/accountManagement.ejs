@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('common/head', { title: 'Account management' }) %>
+  </head>
+<body style="display: flex; flex-direction: column">
+  <%- include('common/nav') %>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div>
+          <div class="card-body">
+            <h5 class="card-title text-center">Change password</h5>
+
+            <script>
+              const validateForm = function () {
+                const passwordConfirm = $('[name="passwordConfirm"]').get(0)
+                const password = $('[name="newPassword"]').get(0)
+
+                passwordConfirm.setCustomValidity(password.value != passwordConfirm.value ? "Passwords do not match." : "")
+              }
+            </script>
+
+            <% if (successMessage) {%>
+              <div class="alert alert-success alert-dismissible fade show">
+                <strong>Success!</strong> <%= successMessage %>
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+              </div>
+            <% } %>
+
+            <form action="/account-management/change-password" class="form-signin" method="POST" oninput='validateForm()'>
+              <div class="form-label-group">
+                <label for="inputPassword" style="margin-top: 15px" >New password</label>
+                <input name="newPassword" type="password" id="inputPassword" class="form-control" placeholder="New password" required minlength="8" maxlength="20">
+                <p style="font-weight: normal; font-size: smaller;">New password must contain atleast 8 characters.</p>
+              </div>
+
+              <div class="form-label-group">
+                <label for="inputPasswordConfirm" >Repeat new password</label>
+                <input name="passwordConfirm" type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat new password" required minlength="8" maxlength="20">
+              </div>
+
+              <button class="btn btn-lg btn-primary btn-block text-uppercase" style="margin-top: 15px" type="submit">Change password</button>
+            </form>
+          </div>
+        </div>
+        <% if (userType === 'STUDENT') { %>
+          <div style="margin-top: 20px">
+            <div class="card-body">
+              <h5 class="card-title text-center">Remove account</h5>
+              <!-- For some reason, html does not allow DELETE as method. Therefore I will use POST, even though it semantically wrong -->
+              <form action="/account-management/remove-account" class="form-signin" method="POST">
+                <p>
+                  This will remove all data related to your account. Once completed, this action cannot be undone.
+                </p>
+
+                <button
+                        type="submit"
+                        class="btn btn-danger btn-lg btn-block text-uppercase"
+                        onclick="return confirm('WARNING!\nThis will remove everything related to your account!')"
+                >Remove account</button>
+              </form>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

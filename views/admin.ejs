@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('common/head', { title: 'Administration' }) %>
+  </head>
+<body style="display: flex; flex-direction: column">
+  <%- include('common/nav') %>
+  <% if (errorMessage) {%>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <strong>Error!</strong> <%= errorMessage %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  <% } %>
+  <% if (successMessage) {%>
+    <div class="alert alert-success alert-dismissible fade show">
+      <strong>Success!</strong> <%= successMessage %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  <% } %>
+  <div style="display: flex; flex-direction: row; width: 100%; justify-content: space-between; padding: 10px">
+    <h2 style="display: inline-block;">Users</h2>
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#user-modal">Add staff user</button>
+  </div>
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Email</th>
+      <th scope="col">First name</th>
+      <th scope="col">Last name</th>
+      <th scope="col">Type</th>
+      <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% users.forEach(user => {%>
+    <tr>
+      <th scope="row"><%= user.userId %></th>
+      <td><%= user.email %></td>
+      <td><%= user.firstName %></td>
+      <td><%= user.lastName %></td>
+      <td><%= user.type %></td>
+      <td>
+        <!-- For some reason, html does not allow DELETE as method. Therefore I will use POST, even though it semantically wrong -->
+        <form action="/users/<%=user.userId%>" method="POST">
+          <button
+            type="submit"
+            class="btn btn-danger"
+            onclick="return confirm('WARNING!\nThis will remove everything related to this user!')"
+          >Delete</button>
+        </form>
+      </td>
+    </tr>
+    <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Modal -->
+  <div class="modal fade" id="user-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add staff user</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <script>
+            const validateForm = function () {
+              const passwordConfirm = $('[name="passwordConfirm"]').get(0)
+              const password = $('[name="newPassword"]').get(0)
+
+              passwordConfirm.setCustomValidity(password.value != passwordConfirm.value ? "Passwords do not match." : "")
+            }
+          </script>
+
+          <form action="/users" class="form-signin" method="POST" oninput='validateForm()'>
+
+            <div class="form-group">
+              <label for="firstName">First name</label>
+              <input name="firstName" type="text" id="firstName" class="form-control" placeholder="First name" required pattern="[A-ZÅÄÖ].+" title="First name must begin with a capital letter and be atleast 2 letters.">
+
+              <label for="lastName" style="margin-top: 15px" >Last name</label>
+              <input name="lastName" type="text" id="lastName" class="form-control" placeholder="Last name" required pattern="[A-ZÅÄÖ].+" title="Last name must begin with a capital letter and be atleast 2 letters.">
+            </div>
+
+            <div class="form-label-group">
+              <label for="inputEmail">Email address</label>
+              <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required pattern=".+@.+\..{2,}" title="Email must contain @ and end with a valid top-level domain like '.com' or '.se'">
+            </div>
+
+            <div class="form-label-group">
+              <label for="inputPassword" style="margin-top: 15px" >Password</label>
+              <input name="newPassword" type="password" id="inputPassword" class="form-control" placeholder="Password" required minlength="8" maxlength="20">
+              <p style="font-weight: normal; font-size: smaller;">Password must contain atleast 8 characters.</p>
+            </div>
+
+            <div class="form-label-group">
+              <label for="inputPasswordConfirm" >Repeat password</label>
+              <input name="passwordConfirm" type="password" id="inputPasswordConfirm" class="form-control" placeholder="Repeat password" required minlength="8" maxlength="20">
+            </div>
+
+            <button class="btn btn-lg btn-primary btn-block text-uppercase" style="margin-top: 15px" type="submit">Add user</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
